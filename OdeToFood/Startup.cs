@@ -24,44 +24,51 @@ namespace OdeToFood
         public void Configure(IApplicationBuilder app, IHostingEnvironment env,IGreeter greeter, ILogger<Startup> logger)
         {
 
-            // en middleware för use developerExceptionPage
-            //if (env.IsDevelopment())
-            //{
-            //    app.UseDeveloperExceptionPage();
-            //}
+
 
             // Alla riktiga middleware som man installerar börjar med Usexxx, dessa är alla tilläggs metoder för IApplicationBulder.. finns många extentions ladda ner som nuget paket.
             // tex
 
-            app.Use(next=> 
-                {
-                return  async context => 
-                {
-                    logger.LogInformation("request incoming ");
-                    if(context.Request.Path.StartsWithSegments("/mym"))
-                    {
-                        await context.Response.WriteAsync("Hit!!");
-                    }
-                    else
-                    {
-                        await next(context);
-                        logger.LogInformation("Response outgoing");
-                    }
 
-                };
+            // här skapar jag en liten middleware för att logga requesten och sedan lämna tillbaka den till next.
+            // denna hörs en gång per http request
+            //app.Use(next=> 
+            //    {
+            //    return  async context => 
+            //    {
+            //        logger.LogInformation("request incoming ");
+            //        if(context.Request.Path.StartsWithSegments("/mym"))
+            //        {
+            //            await context.Response.WriteAsync("Hit!!");
+            //        }
+            //        else
+            //        {
+            //            await next(context);
+            //            logger.LogInformation("Response outgoing");
+            //        }
 
-                });
+            //    };
+            //    });
 
             // denna är en enkel middleware tillägg.
             // innebär att welcome page triggas när den får en path som är "/wp" annars kommer mitt greeting att visas.
-            app.UseWelcomePage(new WelcomePageOptions {Path="/wp" });
+            //app.UseWelcomePage(new WelcomePageOptions {Path="/wp" });
 
-            // registerar simpdla middleware 
+
+            // en middleware för use developerExceptionPage
+            if (env.IsDevelopment())
+            {
+                // en middleware används som lyssnare för att ge mer detalierad info tillbaka till användaren, vilkeet används för debugging om vad som gick fel när ett expetion sker.
+                app.UseDeveloperExceptionPage();
+            }
+
+            // registerar simpel middleware 
             // app.Run anväds mycket sällan, kanske för enklare saker som middleware som tex skriver direkt till response eller visa upp.text.. det går göra lite json och html bearbeting här men inte för mycket annat.
             app.Run(async (context) =>
             {
-                var greeting = greeter.GetMessageOfTheDay();
-                await context.Response.WriteAsync(greeting);
+                throw new Exception("Error!");
+                var myGreeting = greeter.GetMessageOfTheDay();
+                await context.Response.WriteAsync(myGreeting);
             });
         }
     }
