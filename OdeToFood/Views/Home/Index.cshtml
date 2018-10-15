@@ -1,4 +1,4 @@
-﻿@model HomeIndexViewModel
+﻿@model OdeToFood.ViewModels.HomeIndexViewModel
 @*model diretive to tell razor engine to intelSense the model for the restaurant.*@
 
 @{
@@ -7,26 +7,17 @@
 }
 
 <h1>All restaurants</h1>
-<table>
 
-    @foreach (var restaurant in Model.Restaurants)
-    {
-        <tr>
-            <td>@restaurant.Id</td>
-            <td>@restaurant.Name</td>
-            <td>
-                @*Alternativa sätt att fixa detail hyperlänkar*@
-                @*<a href="/Home/details/@restaurant.Id">Details</a> |*@
-                @*@Html.ActionLink("Go", "Details", new { id = restaurant.Id })*@
-                <a asp-action="Details" asp-route-id="@restaurant.Id">More</a>  @*använder _ViewImports.cshtml*@
-                <a asp-page="/Restaurants/Edit" asp-route-id="@restaurant.Id"> Edit </a>
-            </td>
-        </tr>
-    }
-</table>
-<a asp-action="Create">Add Restaurants</a>
+@foreach (var Restaurant in Model.Restaurants)
+{
+    @Html.Partial("_Summary",Restaurant);
+}
 
+
+<div><a asp-action="Create">Add Restaurants</a></div>
+ <div>  
 @section footer 
 {
     @Model.CurrentMessage;
 }
+</div>

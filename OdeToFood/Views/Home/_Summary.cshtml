@@ -1,0 +1,11 @@
+﻿@model Restaurant
+
+
+<section>
+    <h3>@Model.Name</h3>
+    <div>Cuisine : @Model.Cuisine</div>
+    <div>
+        <a asp-action="Details" asp-route-id="@Model">More</a>  @*använder _ViewImports.cshtml*@
+        <a asp-page="/Restaurants/Edit" asp-route-id="@Model"> Edit </a>
+    </div>
+</section>
