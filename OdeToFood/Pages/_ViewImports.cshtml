@@ -1,0 +1,31 @@
+﻿
+@*anger vad som ska importeras för att supportera Razor engine att hitta rätt, det är en global import plats inom vy trädet*@
+
+@using OdeToFood.Models;
+@using OdeToFood.ViewModels;
+@using OdeToFood.Pages
+@using OdeToFood.Services
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+
+@*
+
+    https://www.learnrazorpages.com/razor-pages/files/viewimports
+    The ViewImports File
+    The purpose of the _ViewImports.cshtml file is to provide a mechanism to make directives available to Razor pages globally so that you don't have to add them to pages individually.
+
+    The default Razor Pages template includes a _ViewImports.cshtml file in the Pages folder - the root folder for Razor pages. All Razor pages in the folder heirarchy will be affected by the directives set in the _ViewImports.cshtml file.
+
+    The _ViewImports.cshtml file supports the following directives:
+
+    @addTagHelper
+    @inherits
+    @namespace
+    @inject
+    @model
+    @removeTagHelper
+    @tagHelperPrefix
+    @using
+
+
+*@

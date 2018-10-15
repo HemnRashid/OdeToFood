@@ -1,0 +1,18 @@
+﻿@model Restaurant
+
+@{ ViewBag.Title = "Create";}
+<h1>Create</h1>
+<form method="post">
+    <div>
+        <label asp-for="Name"></label>
+        <input asp-for="Name" />  
+        <span asp-validation-for="Name"></span>
+    </div>    
+    @*<input asp-for="Name" />*@
+    <select asp-for="Cuisine" 
+        asp-items="@Html.GetEnumSelectList<CuisineType>()">
+    </select><span asp-validation-for="Cuisine"></span>
+    <input type="submit" name="Save" value="Save" />
+
+</form>
+@section footer{ }
