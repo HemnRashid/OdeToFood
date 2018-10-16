@@ -8,16 +8,10 @@
 
 <h1>All restaurants</h1>
 
-@foreach (var Restaurant in Model.Restaurants)
+@foreach (var res in Model.Restaurants)
 {
-    @Html.Partial("_Summary",Restaurant);
+    @await Html.PartialAsync("_Summary", res);
 }
-
 
 <div><a asp-action="Create">Add Restaurants</a></div>
- <div>  
-@section footer 
-{
-    @Model.CurrentMessage;
-}
-</div>
+
