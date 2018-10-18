@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OdeToFood.Models;
 using OdeToFood.Services;
@@ -8,11 +9,12 @@ using System;
 namespace OdeToFood.Controllers
 {
 
-    
+
     /// <summary>
     /// this name is significant, becuase the MVC framework has some very specific convensions about how it map an incoming request to a method on a class.
     /// by default, it is the HomeController that will receive a request to the root of the application.
     /// </summary>
+    [Authorize] // gäller alla Action
     public class HomeController : Controller
     {
         private IRestaurantData _restaurantData;
@@ -23,7 +25,7 @@ namespace OdeToFood.Controllers
         /// Här används Dependency Injuction
         /// </summary>
         /// <param name="restaurantData"></param>
-        public HomeController(IRestaurantData restaurantData,IGreeter greeter)
+        public HomeController(IRestaurantData restaurantData, IGreeter greeter)
         {
             _restaurantData = restaurantData;
             _greeter = greeter;
@@ -34,6 +36,8 @@ namespace OdeToFood.Controllers
         /// Default method that Homecontroller checks
         /// </summary>
         /// <returns>string</returns>
+        /// 
+        [AllowAnonymous]  // gör exeption där endast index action kan nån utan [Authorize]
         public IActionResult Index()
         {
 
@@ -45,7 +49,7 @@ namespace OdeToFood.Controllers
             var model = new HomeIndexViewModel();
             model.Restaurants = _restaurantData.GetAll();
             model.CurrentMessage = _greeter.GetMessageOfTheDay();
-           
+
             // utan overload, så returneras svaret till en sida som heter index, samma namn som metoden.
             // dock måste Home existera i /View/Home/home.cshtml för att få den att fungera med en kontroller eller om den ska delas med flera kontroller måste den Home läggas i /View/shered/Home.cshtml
             //return View("Home");  
@@ -70,18 +74,18 @@ namespace OdeToFood.Controllers
         public IActionResult Details(int id)
         {
             var model = _restaurantData.Get(id);
-            if(model==null)
+            if (model == null)
             {
 
                 //return NotFound();  // används for API. 
-                
+
                 return RedirectToAction(nameof(Index));
 
             }
 
 
             return View(model);
-            
+
 
             //return Content(id.ToString());
         }
@@ -95,8 +99,10 @@ namespace OdeToFood.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        //[Authorize]
         public IActionResult Create(RestaurantEditModel model)
         {
+            //if(User.Identity.IsAuthenticated)
             if (ModelState.IsValid)
             {
                 var newRestaurant = new Restaurant();
@@ -117,7 +123,7 @@ namespace OdeToFood.Controllers
         public IActionResult Edit(int id)
         {
             var model = _restaurantData.Get(id);
-            if(model==null)
+            if (model == null)
             {
                 return RedirectToAction(nameof(Index));
             }

@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -50,11 +50,23 @@ namespace OdeToFood
 
 
             // lägger till tjänst/service för att hantera vyer och skriva ut de i html. bla.
-            services.AddMvc(); 
+            services.AddMvc();
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme; // forcing the user to authenticate with openidconnect
+            })
+            .AddOpenIdConnect(options =>
+            {
+                _configuration.Bind("AzureAd", options); // binder det som finns i appsettings till dess namn. dvs ClientId och Authority
+            })
+            .AddCookie();
+            // dessa två ovan används sedan av middleware app.UseAuthentication();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env,IGreeter greeter, ILogger<Startup> logger)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IGreeter greeter, ILogger<Startup> logger)
         {
 
 
@@ -96,6 +108,8 @@ namespace OdeToFood
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseRewriter(new RewriteOptions().AddRedirectToHttpsPermanent());
+
             // OBS. en middleware som är en substitute  för både app.use default files och usestaticfiles middleware.
             //app.UseFileServer();
 
@@ -103,22 +117,29 @@ namespace OdeToFood
             // denna rad måste komma före app.UseStaticFiles. 
             // app.UseDefaultFiles();
 
+
             // 2. En middleware som tillåter att visa statiska filer som ligger under wwwroot sturkturen.
             app.UseStaticFiles();
+
+            app.UseNodeModules(env.ContentRootPath);
+            
 
             // MVC middleware, forward reqest to a controller class.
             //app.UseMvcWithDefaultRoute();
 
+            app.UseAuthentication();
+
             app.UseMvc(configureRoutes);
+
 
             // registerar simpel middleware 
             // app.Run anväds mycket sällan, kanske för enklare saker som middleware som tex skriver direkt till response eller visa upp.text.. det går göra lite json och html bearbeting här men inte för mycket annat.
-            app.Run(async (context) =>
-            {
-                //throw new Exception("Error!");
-                var myGreeting = greeter.GetMessageOfTheDay();
-                await context.Response.WriteAsync($"{myGreeting}: {env.EnvironmentName}");
-            });
+            //app.Run(async (context) =>
+            //{
+            //    //throw new Exception("Error!");
+            //    var myGreeting = greeter.GetMessageOfTheDay();
+            //    await context.Response.WriteAsync($"{myGreeting}: {env.EnvironmentName}");
+            //});
         }
 
         private void configureRoutes(IRouteBuilder routeBuilder)
